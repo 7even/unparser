@@ -91,6 +91,7 @@ module Unparser
         end
 
       end # Singleton
+
     end # Def
   end # Emitter
 end # Unparser

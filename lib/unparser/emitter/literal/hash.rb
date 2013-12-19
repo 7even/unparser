@@ -66,18 +66,7 @@ module Unparser
         # @api private
         #
         def dispatch
-          delimited(effective_body, DELIMITER)
-        end
-
-        def effective_body
-          children.map do |pair|
-            key, _value = *pair
-            if key.type == :sym && key.children.first.inspect[1] != DBL_QUOTE
-              s(:pair_colon, pair.children)
-            else
-              s(:pair_rocket, pair.children)
-            end
-          end
+          delimited(children, DELIMITER)
         end
 
       end # HashBody

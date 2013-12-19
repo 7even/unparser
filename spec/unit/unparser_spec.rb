@@ -84,6 +84,10 @@ describe Unparser do
       assert_round_trip(strip(input), versions)
     end
 
+    context 'vsevolod style indentation' do
+      assert_source "class Foo\n  def bar\n  end\n  \n  def baz\n  end\nend # Foo"
+    end
+
     context 'literal' do
       context 'fixnum' do
         assert_generates s(:int,  1),  '1'

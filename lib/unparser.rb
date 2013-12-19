@@ -25,6 +25,10 @@ module Unparser
     buffer = Buffer.new
     comments = Comments.new(comment_array)
     root = Emitter::Root.new(buffer, comments)
+
+    node = Preprocessor.call(node)
+
+
     Emitter.emitter(node, root).write_to_buffer
     buffer.content
   end
@@ -49,6 +53,7 @@ end # Unparser
 require 'unparser/buffer'
 require 'unparser/comments'
 require 'unparser/constants'
+require 'unparser/preprocessor'
 require 'unparser/emitter'
 require 'unparser/emitter/literal'
 require 'unparser/emitter/literal/primitive'
@@ -60,6 +65,7 @@ require 'unparser/emitter/literal/hash'
 require 'unparser/emitter/literal/range'
 require 'unparser/emitter/literal/dynamic_body'
 require 'unparser/emitter/literal/execute_string'
+require 'unparser/emitter/style'
 require 'unparser/emitter/send'
 require 'unparser/emitter/send/unary'
 require 'unparser/emitter/send/binary'
