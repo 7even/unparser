@@ -85,7 +85,18 @@ describe Unparser do
     end
 
     context 'vsevolod style indentation' do
-      assert_source "class Foo\n  def bar\n  end\n  \n  def baz\n  end\nend # Foo"
+      assert_source [
+        'class Foo',
+        '  def bar',
+        '  end',
+        '  ',
+        '  def baz',
+        '  end',
+        '  ',
+        '  def foo',
+        '  end',
+        'end # Foo'
+        ].join(?\n)
     end
 
     context 'literal' do

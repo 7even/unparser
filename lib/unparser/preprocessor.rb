@@ -1,6 +1,6 @@
 module Unparser
-
   module Preprocessor
+
     include Constants
 
     def self.call(node)
@@ -10,7 +10,7 @@ module Unparser
         public_send(method_name, node)
       else
         mapped_children = node.children.map do |child|
-          if child.kind_of?(Parser::AST::Node)
+          if node?(child)
             call(child)
           else
             child
@@ -49,17 +49,26 @@ module Unparser
     def self.on_begin(node)
       children = node.children
 
-      mapped_children = children.each_slice(2).each_with_object([]) do |pair, new_children|
-        left, right = pair
-        if left.kind_of?(Parser::AST::Node) && right.kind_of?(Parser::AST::Node) && left.type == :def && right.type == :def
-          new_children << left << s(:indent_spaces) << right
+      mapped_children = children.each_with_object([]) do |child, new_children|
+        if !new_children.empty? && def_nodes?(new_children.last, child)
+          new_children << s(:indent_spaces) << child
         else
-          new_children.concat(pair)
+          new_children << child
         end
       end
 
       node.updated(nil, mapped_children)
     end
 
-  end
+  private
+
+    def self.node?(something)
+      something.kind_of?(Parser::AST::Node)
+    end
+
+    def self.def_nodes?(*children)
+      children.all? { |child| node?(child) && child.type == :def }
+    end
+
+  end # Preprocessor
 end # Unparser
