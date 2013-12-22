@@ -19,16 +19,12 @@ module Unparser
   # @api private
   #
   def self.unparse(node, comment_array = [])
-    if node.nil?
-      node = Parser::AST::Node.new(:empty)
-    end
+    node ||= Parser::AST::Node.new(:empty)
     buffer = Buffer.new
     comments = Comments.new(comment_array)
     root = Emitter::Root.new(buffer, comments)
 
     node = Preprocessor.call(node)
-
-
     Emitter.emitter(node, root).write_to_buffer
     buffer.content
   end

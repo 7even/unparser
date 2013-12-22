@@ -197,6 +197,9 @@ describe Unparser do
           assert_source '{ a: 1, b: 2 }'
           assert_source '{ a: :a }'
           assert_source '{ :"a b" => 1 }'
+
+          assert_source '{ a: { b: 1 } }'
+          assert_source '{ "a" => { "b" => 1 } }'
         end
       end
     end

@@ -9,14 +9,7 @@ module Unparser
       if respond_to?(method_name)
         public_send(method_name, node)
       else
-        mapped_children = node.children.map do |child|
-          if node?(child)
-            call(child)
-          else
-            child
-          end
-        end
-        node.updated(nil, mapped_children)
+        node.updated(nil, preprocessed_children(node))
       end
     end
 
@@ -36,9 +29,9 @@ module Unparser
       key, value = *node
 
       if key.type == :sym && !symbol_needs_quotes?(key.children.first)
-        node.updated(:pair_colon)
+        node.updated(:pair_colon, preprocessed_children(node))
       else
-        node.updated(:pair_rocket)
+        node.updated(:pair_rocket, preprocessed_children(node))
       end
     end
 
@@ -51,9 +44,9 @@ module Unparser
 
       mapped_children = children.each_with_object([]) do |child, new_children|
         if !new_children.empty? && def_nodes?(new_children.last, child)
-          new_children << s(:indent_spaces) << child
+          new_children << s(:indent_spaces) << call(child)
         else
-          new_children << child
+          new_children << call(child)
         end
       end
 
@@ -61,6 +54,16 @@ module Unparser
     end
 
   private
+
+    def self.preprocessed_children(node)
+      node.children.map do |child|
+        if node?(child)
+          call(child)
+        else
+          child
+        end
+      end
+    end
 
     def self.node?(something)
       something.kind_of?(Parser::AST::Node)
