@@ -1,76 +1,103 @@
 module Unparser
-  module Preprocessor
+  class Preprocessor
 
     include Constants
+    include Concord.new(:node)
 
-    def self.call(node)
-      method_name = "on_#{node.type}"
+    # Registry for node preprocessors
+    REGISTRY = {}
 
-      if respond_to?(method_name)
-        public_send(method_name, node)
-      else
-        node.updated(nil, preprocessed_children(node))
-      end
+    # Preprocess a given AST
+    #
+    # @param [Parser::AST::Node] ast
+    #
+    # @return [Parser::AST::Node] processed AST
+    #
+    # @api private
+    #
+    def self.preprocess(ast)
+      new(ast).preprocess
     end
 
-    def self.s(type, children = [])
-      Parser::AST::Node.new(type, children)
-    end
-
-    # s(:pair, s(:sym, :foo), s(:str, "bar"))
+    # A default implementation of preprocessing:
+    # just replace children with their preprocessed versions
     #
-    #   => s(:pair_colon, s(:sym, :foo), s(:str, "bar"))
+    # @return [Parser::AST::Node] node
     #
-    # s(:pair, s(:sym, "foo"), s(:str, "bar"))
-    #
-    #   => s(:pair_rocked, s(:sym, "foo"), s(:str, "bar"))
-    #
-    def self.on_pair(node)
-      key, value = *node
-
-      if key.type == :sym && !symbol_needs_quotes?(key.children.first)
-        node.updated(:pair_colon, preprocessed_children(node))
-      else
-        node.updated(:pair_rocket, preprocessed_children(node))
-      end
-    end
-
-    def self.symbol_needs_quotes?(symbol)
-      symbol.inspect[1] == DBL_QUOTE
-    end
-
-    def self.on_begin(node)
-      children = node.children
-
-      mapped_children = children.each_with_object([]) do |child, new_children|
-        if !new_children.empty? && def_nodes?(new_children.last, child)
-          new_children << s(:indent_spaces) << call(child)
-        else
-          new_children << call(child)
-        end
-      end
-
-      node.updated(nil, mapped_children)
+    # @api private
+    def preprocess
+      node.updated(nil, preprocessed_children)
     end
 
   private
 
-    def self.preprocessed_children(node)
+    # Return preprocessed children
+    #
+    # @return [Enumerable<Parser::AST::Node>] children
+    #
+    # @api private
+    #
+    def preprocessed_children
       node.children.map do |child|
         if node?(child)
-          call(child)
+          preprocess_child(child)
         else
           child
         end
       end
     end
 
-    def self.node?(something)
+    # Preprocess a single child
+    #
+    # @param [Parser::AST::Node] child_node
+    #
+    # @return [Parser::AST::Node] node
+    #
+    # @api private
+    #
+    def preprocess_child(child_node)
+      REGISTRY.fetch(child_node.type, Preprocessor).new(child_node).preprocess
+    end
+
+    # Register preprocessor for type
+    #
+    # @param [Symbol] type
+    #
+    # @return [undefined]
+    #
+    # @api private
+    #
+    def self.handle(*types)
+      types.each do |type|
+        REGISTRY[type] = self
+      end
+    end
+
+    # Test if *something* is a Parser::AST::Node
+    #
+    # @return [true]
+    #   if *something* is a node
+    #
+    # @return [false]
+    #   otherwise
+    #
+    # @api private
+    #
+    def node?(something)
       something.kind_of?(Parser::AST::Node)
     end
 
-    def self.def_nodes?(*children)
-      children.all? { |child| node?(child) && child.type == :def }
+    # Helper for building nodes
+    # TODO: extract this method into a mixin
+    #
+    # @param [Symbol]
+    #
+    # @return [Parser::AST::Node]
+    #
+    # @api private
+    #
+    def s(type, children = [])
+      Parser::AST::Node.new(type, children)
     end
 
   end # Preprocessor
