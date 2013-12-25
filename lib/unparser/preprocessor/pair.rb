@@ -21,6 +21,8 @@ module Unparser
         end
       end
 
+    private
+
       # Test if this symbol is safe to use without quoting
       #
       # @return [true]
