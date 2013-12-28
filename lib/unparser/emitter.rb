@@ -214,7 +214,6 @@ module Unparser
       conditional_parentheses(!emitter.terminated?) do
         emitter.write_to_buffer
       end
-      emitter.write_to_buffer
     end
 
     # Visit within parentheses
@@ -482,21 +481,6 @@ module Unparser
     #
     def s(type, *children)
       Parser::AST::Node.new(type, *children)
-    end
-
-    # Helper to introduce an end-of-line comment
-    #
-    # @return [undefined]
-    #
-    # @api private
-    #
-    def eol_comment
-      write(WS)
-      comment = buffer.capture_content do
-        write(COMMENT, WS)
-        yield
-      end
-      comments.skip_eol_comment(comment)
     end
 
     # Delegate to emitter

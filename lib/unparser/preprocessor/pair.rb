@@ -2,6 +2,8 @@ module Unparser
   class Preprocessor
     class Pair < self
 
+      BAREWORD = /\A[A-Za-z_][A-Za-z_0-9]*[?!]?\z/.freeze
+
       handle :pair
 
       # Preprocess a hash pair which can be
@@ -34,7 +36,7 @@ module Unparser
       # @api private
       #
       def symbol_needs_quotes?(symbol)
-        symbol.inspect[1] == DBL_QUOTE
+        symbol.to_s =~ BAREWORD
       end
 
     end # Pair

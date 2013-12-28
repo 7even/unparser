@@ -17,7 +17,7 @@ module Unparser
           #
           # @return [undefined]
           #
-          # @api privateo
+          # @api private
           #
           def dispatch
             delimited(children, HASHROCKET)
@@ -39,7 +39,7 @@ module Unparser
           #
           # @return [undefined]
           #
-          # @api privateo
+          # @api private
           #
           def dispatch
             write(key.children.first.to_s, COLON)
