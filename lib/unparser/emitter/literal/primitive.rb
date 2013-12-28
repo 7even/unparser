@@ -79,6 +79,25 @@ module Unparser
             handle :str
           end # String
 
+          class SingleQuotedString < self
+
+            MACRO = '__FILE__'.freeze
+            handle :single_quoted_string
+
+            def dispatch
+              if source == macro
+                write(macro)
+              else
+                write(SNGL_QUOTE, value, SNGL_QUOTE)
+              end
+            end
+
+            def terminated?
+              true
+            end
+
+          end
+
           # Integer macro safe emitter
           class Integer < self
             MACRO = '__LINE__'.freeze

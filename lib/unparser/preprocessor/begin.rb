@@ -14,9 +14,9 @@ module Unparser
       def preprocess
         mapped_children = node.children.each_with_object([]) do |child, new_children|
           if !new_children.empty? && def_nodes?(new_children.last, child)
-            new_children << s(:indent_spaces) << preprocess_child(child)
+            new_children << s(:indent_spaces) << preprocess_node(child)
           else
-            new_children << preprocess_child(child)
+            new_children << preprocess_node(child)
           end
         end
 

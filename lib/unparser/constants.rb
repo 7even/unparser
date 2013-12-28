@@ -85,7 +85,7 @@ module Unparser
 
     # Nodes that can be emitted in tokens that terminate their expression.
     #
-    # These nodes dont require parentheses to be exactly reproduced in context of a more complex expression.
+    # These nodes don't require parentheses to be exactly reproduced in context of a more complex expression.
     #
     TERMINATED = %w(
       int float self kwbegin const regexp args lvar

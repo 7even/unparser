@@ -14,6 +14,9 @@ module Unparser
 
     CURLY_BRACKETS = IceNine.deep_freeze(%w({ }))
 
+    # String node types
+    STR_TYPES = [:str, :single_quoted_string].freeze
+
     # Return node type
     #
     # @return [Symbol]

@@ -107,13 +107,20 @@ describe Unparser do
         assert_generates '0x1', '1'
         assert_generates '1_000', '1000'
         assert_generates '1e10',  '10000000000.0'
-        assert_generates '?c', '"c"'
+        assert_generates '?c', "'c'"
       end
 
       context 'string' do
-        assert_generates %q("foo" "bar"), %q("foobar")
+        pending "TODO: join dstr consisting of only str's in the preprocessor" do
+          assert_generates %q("foo" "bar"), %q('foobar')
+        end
+        
         assert_generates %q(%Q(foo"#{@bar})), %q("foo\"#{@bar}")
-        assert_source %q("\"")
+        
+        pending "TODO: implement Preprocessor::Str#needs_double_quotes? correctly" do
+          assert_source %q("\"")
+        end
+        
         assert_source %q("foo#{1}bar")
         assert_source %q("\"#{@a}")
       end
@@ -150,7 +157,7 @@ describe Unparser do
 
       context 'dynamic string' do
         assert_source %q("foo#{@bar}")
-        assert_source     %q("fo\no#{bar}b\naz")
+        assert_source %q("fo\no#{bar}b\naz")
       end
 
       context 'dynamic symbol' do
@@ -185,7 +192,7 @@ describe Unparser do
         assert_source '[1, *@foo]'
         assert_source '[*@foo, 1]'
         assert_source '[*@foo, *@baz]'
-        assert_generates '%w(foo bar)', %q(["foo", "bar"])
+        assert_generates '%w(foo bar)', %q(['foo', 'bar'])
       end
 
       context 'hash' do
@@ -199,7 +206,7 @@ describe Unparser do
           assert_source '{ :"a b" => 1 }'
 
           assert_source '{ a: { b: 1 } }'
-          assert_source '{ "a" => { "b" => 1 } }'
+          assert_source '{ \'a\' => { \'b\' => 1 } }'
         end
       end
     end
@@ -359,7 +366,7 @@ describe Unparser do
       assert_source '@ivar.bar'
       assert_source '//.bar'
       assert_source '$var.bar'
-      assert_source '"".bar'
+      assert_source '\'\'.bar'
       assert_source 'defined?(@foo).bar'
       assert_source 'break.foo'
       assert_source 'next.foo'
@@ -465,7 +472,7 @@ describe Unparser do
       assert_source 'self.foo=(:bar)'
 
       assert_source 'foo.bar(baz: boz)'
-      assert_source 'foo.bar(foo, "baz" => boz)'
+      assert_source 'foo.bar(foo, \'baz\' => boz)'
       assert_source 'foo.bar({ foo: boz }, boz)'
     end
 

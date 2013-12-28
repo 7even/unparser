@@ -45,7 +45,7 @@ module Unparser
         #
         def write_body(node)
           case node.type
-          when :str
+          when *STR_TYPES
             write(escape(node).children.first)
           else
             visit(s(:interpolated, [node]))
@@ -81,9 +81,9 @@ module Unparser
         # @api private
         #
         def escape(child)
-          return child unless child.type == :str
+          return child unless STR_TYPES.include?(child.type)
           source = child.children.first
-          Parser::AST::Node.new(:str, [Unparser.transquote(source, delimiter, DELIMITER)])
+          Parser::AST::Node.new(child.type, [Unparser.transquote(source, delimiter, DELIMITER)])
         end
 
         # Return closing delimiter

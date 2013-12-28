@@ -16,7 +16,7 @@ module Unparser
     # @api private
     #
     def self.preprocess(ast)
-      new(ast).preprocess
+      preprocessor_for(ast).preprocess
     end
 
     # A default implementation of preprocessing:
@@ -40,23 +40,27 @@ module Unparser
     def preprocessed_children
       node.children.map do |child|
         if node?(child)
-          preprocess_child(child)
+          preprocess_node(child)
         else
           child
         end
       end
     end
 
-    # Preprocess a single child
+    # Preprocess a single node
     #
-    # @param [Parser::AST::Node] child_node
+    # @param [Parser::AST::Node] node
     #
     # @return [Parser::AST::Node] node
     #
     # @api private
     #
-    def preprocess_child(child_node)
-      REGISTRY.fetch(child_node.type, Preprocessor).new(child_node).preprocess
+    def preprocess_node(node)
+      self.class.preprocessor_for(node).preprocess
+    end
+
+    def self.preprocessor_for(node)
+      REGISTRY.fetch(node.type, Preprocessor).new(node)
     end
 
     # Register preprocessor for type
